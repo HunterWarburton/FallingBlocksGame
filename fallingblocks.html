@@ -95,25 +95,30 @@ function checkForMatches() {
   }
 }
 
-  // Move the blocks down and refill the grid from the top
-  function update() {
-    for (let row = numRows - 1; row >= 0; row--) {
-      for (let col = 0; col < numCols; col++) {
-        if (grid[row][col] == null) {
-          // Shift blocks down
-          for (let r = row; r > 0; r--) {
-            grid[r][col] = grid[r - 1][col];
-          }
-          grid[0][col] = {
-            x: col * blockSize,
-            y: 0,
-            color: getRandomColor(),
-            selected: false
-          };
+ // Move the blocks down and refill the grid from the top
+function update() {
+  for (let row = numRows - 1; row >= 0; row--) {
+    for (let col = 0; col < numCols; col++) {
+      if (grid[row][col] == null) {
+        // Shift blocks down
+        for (let r = row; r > 0; r--) {
+          grid[r][col] = grid[r - 1][col];
         }
+        grid[0][col] = {
+          x: col * blockSize,
+          y: 0,
+          color: getRandomColor(),
+          selected: false
+        };
+      } else {
+        // Update the row and column of the block
+        grid[row][col].row = row;
+        grid[row][col].col = col;
       }
     }
   }
+}
+
 
   // Handle mouse clicks on the canvas
   canvas.addEventListener('click', function(event) {
