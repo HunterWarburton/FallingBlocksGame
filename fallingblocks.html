@@ -9,6 +9,14 @@
   const numRows = 10;
   const numCols = 10;
 
+const colors = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'];
+
+// Generate a random color for the blocks
+function getRandomColor() {
+  let index = Math.floor(Math.random() * colors.length);
+  return colors[index];
+}
+
   // Create a 2D array to represent the grid of blocks
   let grid = [];
   for (let row = 0; row < numRows; row++) {
@@ -22,14 +30,6 @@
       };
     }
   }
-  
-const colors = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'];
-
-// Generate a random color for the blocks
-function getRandomColor() {
-  let index = Math.floor(Math.random() * colors.length);
-  return colors[index];
-}
 
    // Track the selected block
   let selectedBlock = null;
