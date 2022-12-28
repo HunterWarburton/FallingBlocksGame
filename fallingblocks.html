@@ -17,18 +17,28 @@
       grid[row][col] = {
         x: col * blockSize,
         y: row * blockSize,
-        color: getRandomColor()
+        color: getRandomColor(),
+        selected: false
       };
     }
   }
 
-  // Draw the blocks on the canvas
+   // Track the selected block
+  let selectedBlock = null;
+
+// Draw the blocks on the canvas
   function draw() {
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
         let block = grid[row][col];
         ctx.fillStyle = block.color;
         ctx.fillRect(block.x, block.y, blockSize, blockSize);
+
+        if (block.selected) {
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 3;
+          ctx.strokeRect(block.x, block.y, blockSize, blockSize);
+        }
       }
     }
   }
@@ -73,21 +83,45 @@
           grid[0][col] = {
             x: col * blockSize,
             y: 0,
-            color: getRandomColor()
+            color: getRandomColor(),
+            selected: false
           };
         }
       }
     }
   }
 
-   const colors = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'];
+  // Handle mouse clicks on the canvas
+  canvas.addEventListener('click', function(event) {
+    let x = event.offsetX;
+    let y = event.offsetY;
+    let col = Math.floor(x / blockSize);
+    let row = Math.floor(y / blockSize);
+    let block = grid[row][col];
 
-// Generate a random color for the blocks
-function getRandomColor() {
-  let index = Math.floor(Math.random() * colors.length);
-  return colors[index];
-}
-
+    if (block === selectedBlock) {
+      // Unselect the block if it was already selected
+      block.selected = false;
+      selectedBlock = null;
+    } else if (selectedBlock == null) {
+      // Select the block if no block was previously selected
+      block.selected = true;
+      selectedBlock = block;
+    } else {
+      // Swap the selected block with the clicked block if they are adjacent
+      if (Math.abs(selectedBlock.col - col) + Math.abs(selectedBlock.row - row) == 1) {
+        let temp = grid[selectedBlock.row][selectedBlock.col];
+        grid[selectedBlock.row][selectedBlock.col] = block;
+        grid[row][col] = temp;
+        block.selected = false;
+        selectedBlock = null;
+      } else {
+        // Unselect the current block if it is not adjacent
+        selectedBlock.selected = false;
+        selectedBlock = null;
+      }
+    }
+  });
 
   // Main game loop
   function loop() {
@@ -97,6 +131,7 @@ function getRandomColor() {
     update();
     requestAnimationFrame(loop);
   }
+</script>
 
    const startButton = document.getElementById('start-button');
 
