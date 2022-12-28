@@ -80,13 +80,14 @@
     }
   }
 
-   // Generate a random color for the blocks
-  function getRandomColor() {
-    let r = Math.floor(Math.random() * 256);
-    let g = Math.floor(Math.random() * 256);
-    let b = Math.floor(Math.random() * 256);
-    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-  }
+   const colors = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'];
+
+// Generate a random color for the blocks
+function getRandomColor() {
+  let index = Math.floor(Math.random() * colors.length);
+  return colors[index];
+}
+
 
   // Main game loop
   function loop() {
