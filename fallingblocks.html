@@ -1,3 +1,4 @@
+<button id="start-button">Start</button>
 <canvas id="canvas" width="400" height="400"></canvas>
 
 <script>
@@ -96,7 +97,11 @@
     requestAnimationFrame(loop);
   }
 
-  // Start the game loop
-  loop();
+   const startButton = document.getElementById('start-button');
+
+  // Start the game when the start button is clicked
+  startButton.addEventListener('click', function() {
+    loop();
+  });
 </script>
 
