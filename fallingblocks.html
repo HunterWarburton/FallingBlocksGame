@@ -86,6 +86,7 @@ function checkForMatches() {
         grid[row][col] = null;
         grid[row][col + 1] = null;
         grid[row][col + 2] = null;
+        update(); // call update() after removing the blocks
       }
 
       // Check for vertical matches
@@ -97,6 +98,7 @@ function checkForMatches() {
         grid[row][col] = null;
         grid[row + 1][col] = null;
         grid[row + 2][col] = null;
+        update(); // call update() after removing the blocks
       }
     }
   }
