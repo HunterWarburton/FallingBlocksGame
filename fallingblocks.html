@@ -9,14 +9,6 @@
   const numRows = 10;
   const numCols = 10;
 
-const colors = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'];
-
-// Generate a random color for the blocks
-function getRandomColor() {
-  let index = Math.floor(Math.random() * colors.length);
-  return colors[index];
-}
-
   // Create a 2D array to represent the grid of blocks
   let grid = [];
   for (let row = 0; row < numRows; row++) {
@@ -31,10 +23,17 @@ function getRandomColor() {
     }
   }
 
-   // Track the selected block
+  // Track the selected block
   let selectedBlock = null;
 
-// Draw the blocks on the canvas
+  // Generate a random color for the blocks
+  function getRandomColor() {
+    let colors = ['red', 'yellow', 'blue', 'orange', 'green', 'purple'];
+    let index = Math.floor(Math.random() * colors.length);
+    return colors[index];
+  }
+
+    // Draw the blocks on the canvas
   function draw() {
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
@@ -51,74 +50,62 @@ function getRandomColor() {
     }
   }
 
-// Check for matching blocks and remove them from the grid
-function checkForMatches() {
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      let block = grid[row][col];
-      if (block == null) continue; // skip null blocks
+  // Check for matching blocks and remove them from the grid
+  function checkForMatches() {
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        let block = grid[row][col];
+        if (block == null) continue; // skip null blocks
 
-      let color = block.color;
+        let color = block.color;
 
-      // Check for horizontal matches
-      if (col < numCols - 2 &&
-          grid[row][col + 1] != null &&
-          grid[row][col + 2] != null &&
-          grid[row][col + 1].color == color &&
-          grid[row][col + 2].color == color) {
-        grid[row][col] = null;
-        grid[row][col + 1] = null;
-        grid[row][col + 2] = null;
-      }
-
-      // Check for vertical matches
-      if (row < numRows - 2 &&
-          grid[row + 1][col] != null &&
-          grid[row + 2][col] != null &&
-          grid[row + 1][col].color == color &&
-          grid[row + 2][col].color == color) {
-        grid[row][col] = null;
-        grid[row + 1][col] = null;
-        grid[row + 2][col] = null;
-      }
-    }
-  }
-
-  // Update the rows and columns of the remaining blocks
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      let block = grid[row][col];
-      if (block == null) continue; // skip null blocks
-      block.row = row;
-      block.col = col;
-    }
-  }
-}
-
- // Move the blocks down and refill the grid from the top
-function update() {
-  for (let row = numRows - 1; row >= 0; row--) {
-    for (let col = 0; col < numCols; col++) {
-      if (grid[row][col] == null) {
-        // Shift blocks down
-        for (let r = row; r > 0; r--) {
-          grid[r][col] = grid[r - 1][col];
+        // Check for horizontal matches
+        if (col < numCols - 2 &&
+            grid[row][col + 1] != null &&
+            grid[row][col + 2] != null &&
+            grid[row][col + 1].color == color &&
+            grid[row][col + 2].color == color) {
+          grid[row][col] = null;
+          grid[row][col + 1] = null;
+          grid[row][col + 2] = null;
         }
-        grid[0][col] = {
-          x: col * blockSize,
-          y: 0,
-          color: getRandomColor(),
-          selected: false
-        };
-      } else {
-        // Update the row and column of the block
-        grid[row][col].row = row;
-        grid[row][col].col = col;
+
+        // Check for vertical matches
+        if (row < numRows - 2 &&
+            grid[row + 1][col] != null &&
+            grid[row + 2][col] != null &&
+            grid[row + 1][col].color == color &&
+            grid[row + 2][col].color == color) {
+          grid[row][col] = null;
+          grid[row + 1][col] = null;
+          grid[row + 2][col] = null;
+            }
+    }
+  }
+
+  // Move the blocks down and refill the grid from the top
+  function update() {
+    for (let row = numRows - 1; row >= 0; row--) {
+      for (let col = 0; col < numCols; col++) {
+        if (grid[row][col] == null) {
+          // Shift blocks down
+          for (let r = row; r > 0; r--) {
+            grid[r][col] = grid[r - 1][col];
+          }
+          grid[0][col] = {
+            x: col * blockSize,
+            y: 0,
+            color: getRandomColor(),
+            selected: false
+          };
+        } else {
+          // Update the row and column of the block
+          grid[row][col].row = row;
+          grid[row][col].col = col;
+        }
       }
     }
   }
-}
-
 
   // Handle mouse clicks on the canvas
   canvas.addEventListener('click', function(event) {
@@ -161,11 +148,6 @@ function update() {
     requestAnimationFrame(loop);
   }
 
-   const startButton = document.getElementById('start-button');
-
-  // Start the game when the start button is clicked
-  startButton.addEventListener('click', function() {
-    loop();
-  });
+  // Start the game loop when the "start" button is clicked
+  document.getElementById('start').addEventListener('click', loop);
 </script>
-
