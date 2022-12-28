@@ -21,7 +21,7 @@
 		const gameContainer = document.getElementById("gameContainer");
 		const rows = 10;
 		const cols = 10;
-    	// create game board
+    		// create game board
 	for (let i = 0; i < rows; i++) {
 		let row = document.createElement("div");
 		row.classList.add("row");
@@ -48,6 +48,7 @@
 			let col = Array.from(row.children).indexOf(block);
 			let numHorizontalMatches = 0;
 			let numVerticalMatches = 0;
+			let blocksToRemove = [];
 
 			// check for horizontal matches
 			let i = col;
@@ -69,20 +70,32 @@
 			}
 			j = Array.from(gameContainer.children).indexOf(row) - 1;
 			while (j >= 0 && gameContainer.children[j].children[col].style.backgroundColor === blockColor) {
-numVerticalMatches++;
-j--;
-}
-      // remove blocks if 3 or more matches found
+				numVerticalMatches++;
+				j--;
+			}
+
+			// remove blocks if 3 or more matches found
 			if (numHorizontalMatches >= 3) {
 				for (let k = col - numHorizontalMatches + 1; k <= col; k++) {
-					row.children[k].style.backgroundColor = "white";
+					blocksToRemove.push(row.children[k]);
 				}
 			}
 			if (numVerticalMatches >= 3) {
 				for (let k = Array.from(gameContainer.children).indexOf(row) - numVerticalMatches + 1; k <= Array.from(gameContainer.children).indexOf(row); k++) {
-					gameContainer.children[k].children[col].style.backgroundColor = "white";
+					blocksToRemove.push(gameContainer.children[k].children[col]);
 				}
 			}
+
+			// move blocks down
+			blocksToRemove.forEach(block => {
+				block.style.backgroundColor = "white";
+				let currentRow = block.parentNode;
+				let currentCol = Array.from(currentRow.children).indexOf(block);
+				let nextRow = gameContainer.children[Array.from(gameContainer.children).indexOf(currentRow) + 1];
+				if (nextRow) {
+					nextRow.children[currentCol].style.backgroundColor = blockColor;
+				}
+			});
 		});
 	}
 
