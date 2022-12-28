@@ -33,11 +33,27 @@
     return colors[index];
   }
 
-    // Draw the blocks on the canvas
-  function draw() {
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        let block = grid[row][col];
+ // Draw the blocks on the canvas
+function draw() {
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      let block = grid[row][col];
+      if (block == null) {
+        // Shift blocks down
+        for (let r = row; r > 0; r--) {
+          grid[r][col] = grid[r - 1][col];
+        }
+        grid[0][col] = {
+          x: col * blockSize,
+          y: 0,
+          color: getRandomColor(),
+          selected: false
+        };
+      } else {
+        // Update the row and column of the block
+        block.row = row;
+        block.col = col;
+
         ctx.fillStyle = block.color;
         ctx.fillRect(block.x, block.y, blockSize, blockSize);
 
@@ -49,6 +65,8 @@
       }
     }
   }
+}
+
 
   // Check for matching blocks and remove them from the grid
 function checkForMatches() {
