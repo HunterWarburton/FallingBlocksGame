@@ -1,0 +1,102 @@
+<canvas id="canvas" width="400" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const blockSize = 40;
+  const numRows = 10;
+  const numCols = 10;
+
+  // Create a 2D array to represent the grid of blocks
+  let grid = [];
+  for (let row = 0; row < numRows; row++) {
+    grid[row] = [];
+    for (let col = 0; col < numCols; col++) {
+      grid[row][col] = {
+        x: col * blockSize,
+        y: row * blockSize,
+        color: getRandomColor()
+      };
+    }
+  }
+
+  // Draw the blocks on the canvas
+  function draw() {
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        let block = grid[row][col];
+        ctx.fillStyle = block.color;
+        ctx.fillRect(block.x, block.y, blockSize, blockSize);
+      }
+    }
+  }
+
+  // Check for matching blocks and remove them from the grid
+  function checkForMatches() {
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        let block = grid[row][col];
+        let color = block.color;
+
+        // Check for horizontal matches
+        if (col < numCols - 2 &&
+            grid[row][col + 1].color == color &&
+            grid[row][col + 2].color == color) {
+          grid[row][col] = null;
+          grid[row][col + 1] = null;
+          grid[row][col + 2] = null;
+        }
+
+        // Check for vertical matches
+        if (row < numRows - 2 &&
+            grid[row + 1][col].color == color &&
+            grid[row + 2][col].color == color) {
+          grid[row][col] = null;
+          grid[row + 1][col] = null;
+          grid[row + 2][col] = null;
+        }
+      }
+    }
+  }
+
+  // Move the blocks down and refill the grid from the top
+  function update() {
+    for (let row = numRows - 1; row >= 0; row--) {
+      for (let col = 0; col < numCols; col++) {
+        if (grid[row][col] == null) {
+          // Shift blocks down
+          for (let r = row; r > 0; r--) {
+            grid[r][col] = grid[r - 1][col];
+          }
+          grid[0][col] = {
+            x: col * blockSize,
+            y: 0,
+            color: getRandomColor()
+          };
+        }
+      }
+    }
+  }
+
+   // Generate a random color for the blocks
+  function getRandomColor() {
+    let r = Math.floor(Math.random() * 256);
+    let g = Math.floor(Math.random() * 256);
+    let b = Math.floor(Math.random() * 256);
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+  }
+
+  // Main game loop
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    draw();
+    checkForMatches();
+    update();
+    requestAnimationFrame(loop);
+  }
+
+  // Start the game loop
+  loop();
+</script>
+
