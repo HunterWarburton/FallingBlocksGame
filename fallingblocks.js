@@ -1,101 +1,133 @@
-const BLOCK_SIZE = 50; // size of each block in pixels
-const NUM_COLUMNS = 10; // number of columns in the grid
-const NUM_ROWS = 20; // number of rows in the grid
-
-// create a 2D array to represent the grid
+function generateGrid(numRows, numColumns) {
 let grid = [];
-for (let i = 0; i < NUM_ROWS; i++) {
-  grid[i] = [];
-  for (let j = 0; j < NUM_COLUMNS; j++) {
-    grid[i][j] = null; // initially fill the grid with null values
-  }
+for (let i = 0; i < numRows; i++) {
+let row = [];
+for (let j = 0; j < numColumns; j++) {
+let color = Math.random() > 0.5 ? "primary" : "secondary";
+let block = {color: color};
+row.push(block);
+}
+grid.push(row);
+}
+return grid;
 }
 
-// generate a random block at the top of the grid
-function generateBlock() {
-  let block = {
-    x: Math.floor(Math.random() * NUM_COLUMNS), // random x position
-    y: 0, // y position at the top of the grid
-    color: Math.random() > 0.5 ? 'primary' : 'secondary' // random primary or secondary color
-  };
-  grid[block.y][block.x] = block; // add the block to the grid
+//Next, we need to create a function to check for blocks of the same color that are adjacent to each other. We will do this by iterating through the grid and checking each block's neighbors. If we find 3 or more blocks of the same color, we will mark them for destruction.
+
+function checkForMatches(grid) {
+let numRows = grid.length;
+let numColumns = grid[0].length;
+for (let i = 0; i < numRows; i++) {
+for (let j = 0; j < numColumns; j++) {
+let block = grid[i][j];
+// check for matching blocks to the right
+if (j < numColumns - 2 && block.color === grid[i][j + 1].color && block.color === grid[i][j + 2].color) {
+block.destroy = true;
+grid[i][j + 1].destroy = true;
+grid[i][j + 2].destroy = true;
+}
+// check for matching blocks below
+if (i < numRows - 2 && block.color === grid[i + 1][j].color && block.color === grid[i + 2][j].color) {
+block.destroy = true;
+grid[i + 1][j].destroy = true;
+grid[i + 2][j].destroy = true;
+}
+}
+}
 }
 
-// check for blocks of the same color that are adjacent to each other
-function checkAdjacent(x, y) {
-  let color = grid[y][x].color;
-  let adjacent = [[1,0], [-1,0], [0,1], [0,-1]]; // array of x,y positions to check
-  let count = 1; // start at 1 because the block being checked is included
-  let checked = [[y,x]]; // array to keep track of blocks that have been checked
-  let toCheck = [[y,x]]; // array of blocks to check next
-  while (toCheck.length > 0) {
-    let check = toCheck.pop();
-    for (let i = 0; i < adjacent.length; i++) {
-      let y2 = check[0] + adjacent[i][1];
-      let x2 = check[1] + adjacent[i][0];
-      if (y2 >= 0 && y2 < NUM_ROWS && x2 >= 0 && x2 < NUM_COLUMNS && grid[y2][x2] && grid[y2][x2].color == color && !checked.includes([y2,x2])) {
-        // if the block is within the grid and is the same color and has not been checked, add it to the count and the arrays of checked and toCheck blocks
-        count++;
-        checked.push([y2,x2]);
-        toCheck.push([y2,x2]);
-      }
-    }
-  }
-  if (count >= 3) {
-    // if there are 3 or more blocks of the same color, remove them from the grid
-    for (let i = 0; i < checked.length; i++) {
-      grid[checked[i][0]][checked[i][1]] = null;
-    }
-  }
+//Now we need to create a function to destroy the marked blocks and move all the blocks down to fill in the empty spaces.
+
+function destroyBlocks(grid) {
+let numRows = grid.length;
+let numColumns = grid[0].length;
+// destroy marked blocks
+for (let i = 0; i < numRows; i++) {
+for (let j = 0; j < numColumns; j++) {
+if (grid[i][j].destroy) {
+grid[i][j] = null;
+}
+}
+}
+// move blocks down to fill in empty spaces
+for (let j = 0; j < numColumns; j++) {
+let numEmptySpaces = 0;
+for (let i = numRows - 1; i >= 0; i--) {
+if (grid[i][j] === null) {
+numEmptySpaces++;
+} else if (numEmptySpaces > 0) {
+grid[i + numEmptySpaces][j] = grid[i][j];
+grid[i][j] = null;
+}
+}
+}
 }
 
-// move all the blocks down to the lowest possible position
-function moveDown() {
-  for (let i = NUM_ROWS - 1; i >= 0; i--) {
-    for (let j = 0; j < NUM_COLUMNS; j++) {
-      if (grid[i][j]) { // if there is a block in the current position
-        let y = i;
-        while (y + 1 < NUM_ROWS && !grid[y + 1][j]) { // move the block down as long as there is an empty space below it
-          y++;
-        }
-        if (y != i) { // if the block has moved, update the grid
-          grid[y][j] = grid[i][j];
-          grid[i][j] = null;
-          grid[y][j].y = y;
-        }
-      }
-    }
-  }
+//Finally, we can create a function to run the game loop. This function will generate the grid, check for matches, destroy the marked blocks, and repeat until there are no more matches.
+
+function runGame() {
+let grid = generateGrid(10, 10);
+let hasMatches = true;
+while (hasMatches) {
+checkForMatches(grid);
+destroyBlocks(grid);
+hasMatches = false;
+for (let i = 0; i < grid.length; i++) {
+for (let j = 0; j < grid[0].length; j++) {
+if (grid[i][j] && grid[i][j].destroy) {
+hasMatches = true;
+break;
+}
+}
+if (hasMatches) {
+break;
+}
+}
+}
 }
 
-// main game loop
-function update() {
-  generateBlock(); // generate a new block at the top of the grid
-  for (let i = 0; i < NUM_ROWS; i++) {
-    for (let j = 0; j < NUM_COLUMNS; j++) {
-      if (grid[i][j]) {
-        checkAdjacent(j, i); // check for blocks of the same color that are adjacent to each other
-      }
-    }
-  }
-  moveDown(); // move all the blocks down to the lowest possible position
-  draw(); // draw the grid
-  requestAnimationFrame(update); // loop the game
+//To run the game, we just need to call the "runGame" function.
+
+runGame();
+
+function renderGrid(grid) {
+let table = document.createElement("table");
+for (let i = 0; i < grid.length; i++) {
+let row = document.createElement("tr");
+for (let j = 0; j < grid[0].length; j++) {
+let cell = document.createElement("td");
+if (grid[i][j]) {
+cell.classList.add(grid[i][j].color);
+}
+row.appendChild(cell);
+}
+table.appendChild(row);
+}
+document.body.appendChild(table);
 }
 
-// draw the grid on the canvas
-function draw() {
-  let canvas = document.getElementById('canvas');
-  let ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // clear the canvas
-  for (let i = 0; i < NUM_ROWS; i++) {
-    for (let j = 0; j < NUM_COLUMNS; j++) {
-      if (grid[i][j]) {
-        ctx.fillStyle = grid[i][j].color == 'primary' ? 'red' : 'blue'; // set the fill color based on the block's color
-        ctx.fillRect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); // draw the block
-      }
-    }
-  }
+//We can then call the "renderGrid" function after each iteration of the game loop in the "runGame" function.
+
+function runGame() {
+let grid = generateGrid(10, 10);
+let hasMatches = true;
+while (hasMatches) {
+checkForMatches(grid);
+destroyBlocks(grid);
+hasMatches = false;
+for (let i = 0; i < grid.length; i++) {
+for (let j = 0; j < grid[0].length; j++) {
+if (grid[i][j] && grid[i][j].destroy) {
+hasMatches = true;
+break;
+}
+}
+if (hasMatches) {
+break;
+}
+}
+renderGrid(grid);
+}
 }
 
-update(); // start the game
+//Now when we run the game, we should see the grid of blocks displayed on the page, with the matching blocks disappearing and the remaining blocks falling down to fill in the empty spaces.
