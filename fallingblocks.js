@@ -26,27 +26,21 @@ return grid;
 function checkForMatches(grid) {
 // check rows
 for (let i = 0; i < grid.length; i++) {
-for (let j = 0; j < grid[0].length; j++) {
-if (grid[i][j]) {
-let color = grid[i][j].color;
-if (j < grid[0].length - 2 && grid[i][j+1] && grid[i][j+2] && grid[i][j+1].color == color && grid[i][j+2].color == color) {
+for (let j = 0; j < grid[0].length - 2; j++) {
+if (grid[i][j] && grid[i][j].color === grid[i][j + 1].color && grid[i][j].color === grid[i][j + 2].color) {
 grid[i][j].destroy = true;
-grid[i][j+1].destroy = true;
-grid[i][j+2].destroy = true;
-}
+grid[i][j + 1].destroy = true;
+grid[i][j + 2].destroy = true;
 }
 }
 }
 // check columns
-for (let i = 0; i < grid.length; i++) {
+for (let i = 0; i < grid.length - 2; i++) {
 for (let j = 0; j < grid[0].length; j++) {
-if (grid[i][j]) {
-let color = grid[i][j].color;
-if (i < grid.length - 2 && grid[i+1][j] && grid[i+2][j] && grid[i+1][j].color == color && grid[i+2][j].color == color) {
+if (grid[i][j] && grid[i][j].color === grid[i + 1][j].color && grid[i][j].color === grid[i + 2][j].color) {
 grid[i][j].destroy = true;
-grid[i+1][j].destroy = true;
-grid[i+2][j].destroy = true;
-}
+grid[i + 1][j].destroy = true;
+grid[i + 2][j].destroy = true;
 }
 }
 }
@@ -55,6 +49,20 @@ grid[i+2][j].destroy = true;
 //Now we need to create a function to destroy the marked blocks and move all the blocks down to fill in the empty spaces.
 
 function destroyBlocks(grid) {
+	let destroyed = true;
+while (destroyed) {
+destroyed = false;
+	// destroy marked blocks
+for (let i = 0; i < grid.length; i++) {
+for (let j = 0; j < grid[0].length; j++) {
+if (grid[i][j] && grid[i][j].destroy) {
+grid[i][j] = null;
+destroyed = true;
+}
+}
+}
+
+	
 // fill in empty spaces with existing blocks
 for (let i = grid.length - 1; i >= 0; i--) {
 for (let j = 0; j < grid[0].length; j++) {
@@ -65,18 +73,37 @@ k--;
 }
 grid[i][j] = grid[k][j];
 grid[k][j] = null;
+if (grid[i][j]) {
+grid[i][j].top = (i - k) * 50; // 50 is the height of each block
 }
 }
 }
+}
+
 // create new blocks
 for (let i = 0; i < grid.length; i++) {
 for (let j = 0; j < grid[0].length; j++) {
-if (grid[i][j] && grid[i][j].destroy) {
+if (!grid[i][j]) {
+let color = colors[Math.floor(Math.random() * colors.length)];
+grid[i][j] = {color: color, id: id, top: 0};
+id++;
+}
+}
+}
+
+
+// create new blocks
+for (let i = 0; i < grid.length; i++) {
+for (let j = 0; j < grid[0].length; j++) {
+if (!grid[i][j]) {
 let color = colors[Math.floor(Math.random() * colors.length)];
 grid[i][j] = {color: color, id: id};
 id++;
 }
 }
+}
+// check for matches
+checkForMatches(grid);
 }
 }
 
@@ -86,6 +113,7 @@ let table = document.querySelector("table");
 if (!selectedBlock) {
 selectedBlock = {row: row, column: column};
 table.rows[row].cells[column].classList.add("selected");
+table.rows[row].cells[column].classList.add("block selected");
 } else {
 // attempt to swap blocks
 let temp = grid[selectedBlock.row][selectedBlock.column];
@@ -107,11 +135,6 @@ document.body.appendChild(renderGrid(grid));
 
 
 
-
-
-
-
-
 //To run the game, we just need to call the "runGame" function.
 
 runGame();
@@ -126,6 +149,7 @@ if (grid[i][j]) {
 cell.classList.add("block");
 cell.style.backgroundColor = grid[i][j].color;
 cell.innerHTML = grid[i][j].id;
+cell.style.top = grid[i][j].top + "px";
 }
 cell.addEventListener("click", function() {
 handleBlockClick(i, j, grid);
